@@ -1,0 +1,4 @@
+compressed=true
+country_identifier=UTO
+mrz_td3=P<UTOSPECIMEN<<PETER<<<<<<<<<<<<<<<<<<<<<<<<K7629352E7UTO8504279M2805203<<<<<<<<<<<<<<00
+can=156782
