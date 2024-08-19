@@ -8,15 +8,15 @@ A simple Encoder/Decoder for ICAO Datastructure for Barcode
 
 ## Usage
 
-```$ idb1 <enc | dec> input_file```
+```$ idb1 <enc|dec> input_file```
 
 The idb1 commands consist of two sub-commands, ```enc``` and ```dec```, for encoding and deconding a barcode respectively. Both require an ```input_file``` which can be provided as a positional argoment or though piping or redirect. These commands will all work:
 
-```$ idb1 <enc | dec> < input_file```
+```$ idb1 <enc|dec> < input_file```
 
-```$ cat input_file | idb1 <enc | dec>```
+```$ cat input_file | idb1 <enc|dec>```
 
-```$ echo some input | idb1 <enc | dec>```
+```$ echo some input | idb1 <enc|dec>```
 
 ### Decoding
 
