@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools"] 
+requires = ["setuptools>=72.1.0"] 
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,7 @@ name = "idb1_encoder_decoder"
 version = "0.0.1"
 description = "A simple Encoder/Decoder for ICAO Datastructure for Barcode"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 
 dependencies = [
   "construct>=2.10.70"
