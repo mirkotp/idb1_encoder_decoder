@@ -4,7 +4,7 @@ A simple Encoder/Decoder for ICAO Datastructure for Barcode
 
 ## Installation
 
-```pip install git+https://github.com/mirkotp/idb1_encoder_decoder```
+```$ pip install git+https://github.com/mirkotp/idb1_encoder_decoder```
 
 ## Usage
 
@@ -22,7 +22,7 @@ The idb1 commands consist of two sub-commands, ```enc``` and ```dec```, for enco
 
 When decoding, the expected input is an encoded barcode, for example
 
-```echo NDB1A3HCWCBQJAQQLGRVH | idb1 dec```
+```$ echo NDB1A3HCWCBQJAQQLGRVH | idb1 dec```
 
 will output the contents of the barcode:
 
@@ -66,7 +66,7 @@ country_identifier=UTO
 can=156782
 ```
 
-Then, ```idb1 enc barcode.txt``` will output ```NDB1A3HCWCBQJAQQLGRVH```.
+Then, ```$ idb1 enc barcode.txt``` will output ```NDB1A3HCWCBQJAQQLGRVH```.
 
 ### Caveats
 
