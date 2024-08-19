@@ -33,13 +33,13 @@ class C40(Adapter):
         output = b''
         for u1, u2, u3 in [(obj[i:] + b"\x00\x00")[0:3] for i in range(0, len(obj), 3)]:
             if u2 == 0:
-                output += b"\xfe" + (u1 + 1).to_bytes()
+                output += b"\xfe" + (u1 + 1).to_bytes(1, "big")
                 break
             u1 = chset.index(chr(u1))
             u2 = chset.index(chr(u2))
             u3 = 0 if u3 == 0 else chset.index(chr(u3))
             u = 1600*u1 + 40*u2 + u3 + 1
-            output += int(u / 256).to_bytes() + int(u % 256).to_bytes()
+            output += int(u / 256).to_bytes(1, "big") + int(u % 256).to_bytes(1, "big")
         return output
 
 class StripLT(Adapter):
