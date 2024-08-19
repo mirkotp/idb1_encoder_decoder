@@ -1,4 +1,4 @@
-from idb1_constructs import idb1
+from .parser import idb1
 import argparse
 import configparser
 import sys
@@ -16,7 +16,7 @@ def main():
         description='Reads or creates barcodes compliant with the ICAO Datastructure for Barcode')
        
     parser.add_argument('command', choices=["enc", "dec"], help="Subcommand: 'enc' for encoding a new barcode, 'dec' for decoding an existing one.")
-    parser.add_argument('infile',  metavar="input_file", nargs='?', type=argparse.FileType('r'), default=sys.stdin, help="Specify a filename or provide through stdin or pipe.")
+    parser.add_argument('infile',  metavar="input_file", nargs='?', type=argparse.FileType('r'), default=sys.stdin, help="Specify a filename or provide through piping or redirect.")
 
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
@@ -33,7 +33,7 @@ def main():
     # Encoding
     if args.command == "enc":
         config = configparser.ConfigParser()
-        config.read_string("[top]\n" + args.infile.read())
+        config.read_string("[top]\n" + args.infile.read().strip())
 
         try:
             obj = {
