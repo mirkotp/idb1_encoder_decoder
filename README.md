@@ -12,7 +12,7 @@ Clone the source and install the package in "editable mode", by running the foll
 
 ```$ pip install -e .```
 
-In this way, running the program, as explained in the following sections, will reflect any changes made to the source files.
+In this way, running the program (check [Usage](#usage)) will reflect any changes made to the source files.
 
 ## Usage
 
