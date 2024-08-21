@@ -6,6 +6,14 @@ A simple Encoder/Decoder for ICAO Datastructure for Barcode
 
 ```$ pip install git+https://github.com/mirkotp/idb1_encoder_decoder```
 
+## Development
+
+Install the package in "editable mode", by running the following command from the root directory of the project:
+
+```$ pip install -e .```
+
+In this way the command install will reflect any changes made to the source files.
+
 ## Usage
 
 ```$ idb1 <enc|dec> input_file```
