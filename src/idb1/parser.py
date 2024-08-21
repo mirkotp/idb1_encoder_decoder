@@ -1,9 +1,6 @@
 import base64
 from construct import *
 
-setGlobalPrintFullStrings(True)
-setGlobalPrintFalseFlags(True)
-
 class Base32(Tunnel):
     def _decode(self, obj, context, path):
         obj = obj + b"=" * ((8 - len(obj) % 8) % 8)
@@ -66,14 +63,14 @@ idb1_message = Struct(
         
     Const(b"\x61"), # Message start
     "message" / Prefixed(VarInt, Struct (
-        "mrz_td1" / Optional(msg_mrz_td1),
-        "mrz_td3" / Optional(msg_mrz_td3),
-        "can" / Optional(msg_can),
-        "photo" / Optional(msg_photo)
+        "mrz_td1"   / Optional(msg_mrz_td1),
+        "mrz_td3"   / Optional(msg_mrz_td3),
+        "can"       / Optional(msg_can),
+        "photo"     / Optional(msg_photo)
     )),
 
-    "signer_certificate" / Optional(msg_signer_certificate),
-    "signature_data" / Optional(msg_signature_data)
+    "signer_certificate"    / Optional(msg_signer_certificate),
+    "signature_data"        / Optional(msg_signature_data)
 )
 
 idb1 = Struct(
