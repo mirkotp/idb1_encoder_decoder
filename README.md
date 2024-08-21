@@ -65,7 +65,8 @@ Then, ```$ idb1 enc barcode.txt``` will output ```NDB1CPDNLW6JUSGGZGRLBWPNXEAAWX
 
 ### Caveats
 
-Input validation and exception management is still under development. Errors usually mean the input is not well-formed: reading the exceptions can give some clue about what's wrong.
+Input validation and exception management is still under development. Errors usually mean the input is not well-formed: reading the exceptions can give some clue about what's wrong.  
+Sometimes the problem is that you are running the command for encoding when in reality you meant to decode, or viceversa.
 
 ## Examples
 
