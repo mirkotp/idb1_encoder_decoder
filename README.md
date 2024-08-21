@@ -1,6 +1,6 @@
 # idb1_encoder_decoder
 
-A simple Encoder/Decoder for ICAO Datastructure for Barcode
+A simple Encoder/Decoder for ICAO Datastructure for Barcode.
 
 ## Installation
 
