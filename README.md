@@ -8,7 +8,7 @@ A simple Encoder/Decoder for ICAO Datastructure for Barcode
 
 ## Development
 
-Install the package in "editable mode", by running the following command from the root directory of the project:
+Clone the source and install the package in "editable mode", by running the following command from the root directory of the project:
 
 ```$ pip install -e .```
 
