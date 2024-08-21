@@ -27,7 +27,18 @@ def main():
     # Decoding
     if args.command == "dec":
         infile = args.infile.read().strip().encode()
-        print(idb1.parse(infile))
+        out = idb1.parse(infile)
+
+        def pretty_print(obj: dict):
+            for k, v in obj.items():
+                if isinstance(v, dict):
+                    pretty_print(v)
+                else:
+                    if v is not None and v is not False and not k.startswith("_"):
+                        print(f"{k} = {v}")
+        
+        pretty_print(out)
+
         quit()
     
     # Encoding
