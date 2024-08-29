@@ -1,5 +1,39 @@
 import base64
+import hashlib
+from ecdsa import SigningKey, VerifyingKey, curves
 from construct import *
+
+def loadSigningKey(der):
+    global sk
+    sk = SigningKey.from_der(der)
+
+def loadVerifyingKey(der):
+    global vk
+    vk = VerifyingKey.from_der(der)
+
+
+sk = SigningKey.generate(curve=curves.SECP256k1, hashfunc=hashlib.sha256)
+vk: VerifyingKey = sk.verifying_key
+
+class Signature(Construct):
+    def __init__(self, sigfield, bytesfunc):
+        super().__init__()
+        self.sigfield = sigfield
+        self.bytesfunc = bytesfunc
+
+    def _parse(self, stream, context, path):
+        sig = self.sigfield._parsereport(stream, context, path)
+        if vk.verify(sig, self.bytesfunc(context)) is not True:
+            raise Exception("invalid signature")
+        return sig
+
+    def _build(self, obj, stream, context, path):
+        sig = sk.sign(self.bytesfunc(context))
+        self.sigfield._build(sig, stream, context, path)
+        return sig
+
+    def _sizeof(self, context, path):
+        return self.sigfield._sizeof(context, path)
 
 class Base32(Tunnel):
     def _decode(self, obj, context, path):
@@ -45,32 +79,38 @@ class StripLT(Adapter):
 
     def _encode(self, obj, context, path):
         return obj.replace("<", " ")
-
+    
 msg_mrz_td1 = FocusedSeq("mrz", Const(b"\x07"), Const(b"\x3c"), "mrz" / StripLT(C40(Bytes(60))))
 msg_mrz_td3 = FocusedSeq("mrz", Const(b"\x08"), Const(b"\x3c"), "mrz" / StripLT(C40(Bytes(60))))
 msg_can = FocusedSeq("code", Const(b"\x09"), Const(b"\x04"), "code" / C40(Bytes(4)))
 msg_photo = FocusedSeq("p", Const(b"\xF0"), "p" / Prefixed(VarInt, GreedyBytes))
-msg_signer_certificate = FocusedSeq("sc", Const(b"\x7f"), "sc" / Prefixed(VarInt, GreedyBytes))
-msg_signature_data = FocusedSeq("sd", Const(b"\x7f"), "sd" / Prefixed(VarInt, GreedyBytes))
+
+msg_signer_certificate = Optional(FocusedSeq("sc", Const(b"\x7e"), "sc" / Prefixed(VarInt, GreedyBytes)))
+msg_signature_data =  FocusedSeq(
+    "sig",
+    Const(b"\x7f"),
+    "sig" / Prefixed(VarInt, Signature(GreedyBytes, this._.signable.data))
+)
 
 idb1_message = Struct(
-    "header" / Struct (
-        "country_identifier"      / C40(Bytes(2)),
-        "signature_algorithm"     / Optional(If(this._._.flags.signed, Bytes(1))), # Check if Optional is really needed
-        "certificate_reference"   / Optional(If(this._._.flags.signed, Bytes(5))),
-        "signature_creation_date" / Optional(If(this._._.flags.signed, Bytes(4)))
-    ),
-        
-    Const(b"\x61"), # Message start
-    "message" / Prefixed(VarInt, Struct (
-        "mrz_td1"   / Optional(msg_mrz_td1),
-        "mrz_td3"   / Optional(msg_mrz_td3),
-        "can"       / Optional(msg_can),
-        "photo"     / Optional(msg_photo)
+    "signable" / RawCopy(Struct(
+        "header" / Struct (
+            "country_identifier"      / C40(Bytes(2)),
+            # "signature_algorithm"     / If(this._._._.flags.signed, Bytes(1)), # Check if Optional is really needed
+            # "certificate_reference"   / If(this._._._.flags.signed, Bytes(5)),
+            # "signature_creation_date" / If(this._._._.flags.signed, Bytes(4))
+        ),
+            
+        Const(b"\x61"), # Message start
+        "message" / Prefixed(VarInt, Struct (
+            "mrz_td1"   / Optional(msg_mrz_td1),
+            "mrz_td3"   / Optional(msg_mrz_td3),
+            "can"       / Optional(msg_can),
+            "photo"     / Optional(msg_photo)
+        )),
     )),
-
-    "signer_certificate"    / Optional(msg_signer_certificate),
-    "signature_data"        / Optional(msg_signature_data)
+    "signer_certificate"    / If(this._.flags.signed, msg_signer_certificate),
+    "signature_data"        / If(this._.flags.signed, msg_signature_data)
 )
 
 idb1 = Struct(
