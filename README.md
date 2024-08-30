@@ -69,11 +69,38 @@ When encoding a barcode with ```signed = True``` option, it is necessary that yo
 
 The public signer certificate can be included into the barcode by using the ```--include_cert``` option.
 
+Example:
+
+```
+$ idb1 enc --secret examples/cert/secret.der --public examples/cert/public.der --include-cert < ex
+amples/barcode_signed.txt
+
+NDB1B3HCQF2XQUQVL4MDYGAYH5LOIMEDASBBAWNDKO7SYGBLDAEAGA4VIMSGOHUBACBQFFOAQIAAKANBAABAN35CNLPI6VN3LPTX4WYIUYSN2R5EJHHZWX4BHQTTSAIJ5JFUAJJJ4IJZ7NLC7CG3FHX3Q62MUPOEBLC2MT63ZE3JDIYJ2F2XQUQVL472AEGEYWVSKZCIZHW7EZNVH42JE2VOJIELM7IJWZKTZEFLPXY2U73DCMER2PZDF7OBMVFPKMM6PDALC33RE6RE75V2DRYOXFTWMNNRA7EA
+```
+
+Normally the signature scheme is non-deterministic so the barcode changes every time you run the command.
+
 ### Verify a signed barcode
 
 When decoding a signed barcode, you can use the ```--public``` option to specify a public signer certificate to be used to verify the signature. This will output the result the validation.
 
 If no certificate is specified, the barcode will still be decoded but you will receive a warning stating that the signature canìt be verified.
+
+Example:
+
+```
+$ echo NDB1B3HCQF2XQUQVL4MDYGAYH5LOIMEDASBBAWNDKO7SYGBLDAEAGA4VIMSGOHUBACBQFFOAQIAAKANBAABAN35CNLPI6VN3LPTX4WYIUYSN2R5EJHHZWX4BHQTTSAIJ5JFUAJJJ4IJZ7NLC7CG3FHX3Q62MUPOEBLC2MT63ZE3JDIYJ2F2XQUQVL472APQBUDU5MVXZJXMO6RLRBGIZHKB4EO7NWGQ5UY2EFMVQC5DVN4UE7ZSNYG4WBKE6FTHXFAO33H3IV4EFZ2NC7ATZNUD66QWE2KHF5MUI | idb1 dec --public examples/cert/public.der 
+
+>>>>>>>>> SIGNATURE: valid
+signed = True
+country_identifier = UTO
+signature_algorithm = ecdsa_sha512
+certificate_reference = b'\xea\xf0\xa4*\xbe'
+signature_creation_date = 2024-08-30
+can = 156782
+signer_certificate = b"0V0\x10\x06\x07*\x86H\xce=\x02\x01\x06\x05+\x81\x04\x00\n\x03B\x00\x04\r\xdfD\xd5\xbd\x1e\xabv\xb7\xce\xfc\xb6\x11LI\xba\x8fH\x93\x9f6\xbf\x02xNr\x02\x13\xd4\x96\x80JS\xc4'?j\xc5\xf1\x1be=\xf7\x0fi\x94{\x88\x15\x8bL\x9f\xb7\x92m#F\x13\xa2\xea\xf0\xa4*\xbe"
+signature_data = b"|\x03A\xd3\xac\xad\xf2\x9b\xb1\xde\x8a\xe2\x13#'PxG}\xb64;Lh\x85e`.\x8e\xad\xe5\t\xfc\xc9\xb87,\x15\x13\xc5\x99\xeeP;{>\xd1^\x10\xb9\xd3E\xf0O-\xa0\xfd\xe8X\x9aQ\xcb\xd6Q"
+```
 
 ## Caveats
 
