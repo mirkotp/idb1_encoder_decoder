@@ -10,7 +10,8 @@ readme = "README.md"
 requires-python = ">=3.9"
 
 dependencies = [
-  "construct>=2.10.70"
+  "construct>=2.10.70",
+  "ecdsa>=0.19.0"
 ]
 
 [project.scripts]
