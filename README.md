@@ -16,7 +16,7 @@ In this way, running the program (check [Usage](#usage)) will reflect any change
 
 ## Usage
 
-```$ idb1 <enc|dec> input_file```
+```$ idb1 [--secret FILE] [--public FILE] <enc|dec> input_file```
 
 The idb1 commands consist of two sub-commands, ```enc``` and ```dec```, for encoding and deconding a barcode respectively. Both require an ```input_file``` which can be provided as a positional argoment or though piping or redirect. These commands will all work:
 
@@ -63,6 +63,18 @@ can = 156782
 
 Then, ```$ idb1 enc barcode.txt``` will output ```NDB1CPDNLW6JUSGGZGRLBWPNXEAAWXEB5G```.
 
+### Encode a signed barcode
+
+When encoding a barcode with ```signed = True``` option, it is necessary that you specify the secret key (```--secret``` option) and the corresponding public signer certificate (```--public``` option), both as a DER file.
+
+The public signer certificate can be included into the barcode by using the ```--include_cert``` option.
+
+### Verify a signed barcode
+
+When decoding a signed barcode, you can use the ```--public``` option to specify a public signer certificate to be used to verify the signature. This will output the result the validation.
+
+If no certificate is specified, the barcode will still be decoded but you will receive a warning stating that the signature canìt be verified.
+
 ## Caveats
 
 Input validation and exception management are still under development. Errors usually mean the input is not well-formed: reading the exceptions can give some clue about what's wrong.  
@@ -70,4 +82,4 @@ Sometimes the problem is that you are running the command for encoding when in r
 
 ## Examples
 
-The [_examples_](./examples) directory contains ready-to-use configuration for a few sample barcodes.
+The [_examples_](./examples) directory contains ready-to-use configuration for a few sample barcodes. In [_examples/cert_](./examples/cert) there is a pair of DER files for testing with signed barcodes.

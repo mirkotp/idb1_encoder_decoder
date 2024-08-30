@@ -1,3 +1,4 @@
 signed=True
+signature_algorithm=ecdsa_sha512
 country_identifier=UTO
 can=156782
