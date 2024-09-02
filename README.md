@@ -46,6 +46,8 @@ When encoding, the expected input is a ```key=value``` configuration file. Curre
 
 ```
 compressed = [True | False]
+signed = [True | False]
+signature_algorithm = [required if signed = True, possible values: ecdsa_sha256, ecdsa_sha384, ecdsa_sha512]
 country_identifier = [required, 3 alphabetic characters string]
 mrz_td1 = [60 alphanumeric characters string]
 mrz_td3 = [60 alphanumeric characters string]
@@ -109,4 +111,6 @@ Sometimes the problem is that you are running the command for encoding when in r
 
 ## Examples
 
-The [_examples_](./examples) directory contains ready-to-use configuration for a few sample barcodes. In [_examples/cert_](./examples/cert) there is a pair of DER files for testing with signed barcodes.
+The [_examples_](./examples) directory contains ready-to-use configuration for a few sample barcodes. 
+
+In [_examples/cert_](./examples/cert) there is a pair of DER files for testing with signed barcodes. The example signer certificate is not compliant with the IDB specification, but it should be good enough for testing purpose.
