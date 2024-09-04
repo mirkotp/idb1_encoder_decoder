@@ -74,8 +74,7 @@ The public signer certificate can be included into the barcode by using the ```-
 Example:
 
 ```
-$ idb1 enc --secret examples/cert/secret.der --public examples/cert/public.der --include-cert < ex
-amples/barcode_signed.txt
+$ idb1 enc --secret examples/cert/secret.der --public examples/cert/public.der --include-cert < examples/barcode_signed.txt
 
 NDB1B3HCQF2XQUQVL4MDYGAYH5LOIMEDASBBAWNDKO7SYGBLDAEAGA4VIMSGOHUBACBQFFOAQIAAKANBAABAN35CNLPI6VN3LPTX4WYIUYSN2R5EJHHZWX4BHQTTSAIJ5JFUAJJJ4IJZ7NLC7CG3FHX3Q62MUPOEBLC2MT63ZE3JDIYJ2F2XQUQVL472AEGEYWVSKZCIZHW7EZNVH42JE2VOJIELM7IJWZKTZEFLPXY2U73DCMER2PZDF7OBMVFPKMM6PDALC33RE6RE75V2DRYOXFTWMNNRA7EA
 ```
