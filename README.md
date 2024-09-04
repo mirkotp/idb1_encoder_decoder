@@ -20,6 +20,8 @@ In this way, running the program (check [Usage](#usage)) will reflect any change
 
 The idb1 commands consist of two sub-commands, ```enc``` and ```dec```, for encoding and deconding a barcode respectively. Both require an ```input_file``` which can be provided as a positional argoment or though piping or redirect. These commands will all work:
 
+```$ idb1 <enc|dec> input_file```
+
 ```$ idb1 <enc|dec> < input_file```
 
 ```$ cat input_file | idb1 <enc|dec>```
@@ -52,7 +54,7 @@ country_identifier = [required, 3 alphabetic characters string]
 mrz_td1 = [60 alphanumeric characters string]
 mrz_td3 = [60 alphanumeric characters string]
 can = [6 numeric characters string]
-photo = [relative path, to current working dir, to image file which will be embedded as a bytes blob into the barcode]
+photo = [relative path to image file which will be embedded as a bytes blob into the barcode]
 ```
 
 As an example, specular to what we did with decoding, suppose we have the following ```barcode.txt```:
