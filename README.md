@@ -57,7 +57,7 @@ can = [6 numeric characters string]
 photo = [relative path to image file which will be embedded as a bytes blob into the barcode]
 
 # Visa encoding
-vds_mrz = [required, 48 or 44 characters string, see [Doc 9303-7](https://www.icao.int/publications/Documents/9303_p7_cons_en.pdf#search=9303), section 9.1.3 for details]
+vds_mrz = [required, 48 or 44 characters string, see Doc 9303-7, section 9.1.3 for details]
 vds_number_of_entries = [0-255, see Doc 9303-7, section 9.1.3 for details]
 vds_duration_of_stay_days = [required, 0-255, see Doc 9303-7, section 9.1.3 for details]
 vds_duration_of_stay_months = [required, 0-255, see Doc 9303-7, section 9.1.3 for details]
