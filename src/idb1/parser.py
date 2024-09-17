@@ -92,6 +92,24 @@ class Date(Adapter):
     def _encode(self, obj, context, path):
         # Not needed at the moment
         return obj
+    
+msg_vds = Struct(
+    Const(b"\x01"),
+    "vds_mrz" / Select(
+        FocusedSeq("mrz", Const(b"\x01"), "mrz" / StripLT(C40(Bytes(48)))),
+        FocusedSeq("mrz", Const(b"\x02"), "mrz" / StripLT(C40(Bytes(44))))
+    ),
+    "vds_number_of_entries" / Optional(FocusedSeq("noe", Const(b"\x03"), "noe" / Byte)),
+    "vds_duration_of_stay"  / Struct(
+        Const(b"\x04"),
+        "vds_duration_of_stay_days"     / Byte,
+        "vds_duration_of_stay_months"   / Byte,
+        "vds_duration_of_stay_years"    / Byte,
+    ),
+    "vds_passport_number" / FocusedSeq("pn", Const(b"\x05"), "pn" / StripLT(C40(Bytes(6)))), # Encoding?
+    "vds_visa_type" / Optional(FocusedSeq("vt", Const(b"\x06"), "vt" / C40(Bytes(4)))) # Encoding?
+
+)
 
 msg_mrz_td1 = FocusedSeq("mrz", Const(b"\x07"), Const(b"\x3c"), "mrz" / StripLT(C40(Bytes(60))))
 msg_mrz_td3 = FocusedSeq("mrz", Const(b"\x08"), Const(b"\x3c"), "mrz" / StripLT(C40(Bytes(60))))
@@ -117,6 +135,7 @@ idb1_message = Struct(
             
         Const(b"\x61"), # Message start
         "message" / Prefixed(VarInt, Struct (
+            "vds"       / msg_vds,
             "mrz_td1"   / Optional(msg_mrz_td1),
             "mrz_td3"   / Optional(msg_mrz_td3),
             "can"       / Optional(msg_can),
@@ -149,15 +168,13 @@ def parse(barcode, public=None):
 def build(obj, secret=None, public=None, includeCert=False):
     if obj["flags"]["signed"] is True:
         if secret is None:
-            print("When `signed = True`, you must specify you secret key. Check help for more information.")
-            quit()
+            raise Exception("When `signed = True`, you must specify you secret key. Check help for more information.")
 
         global sk
         sk = SigningKey.from_der(secret)
                 
         if public is None:
-            print("When `signed = True`, you must specify your public signer ceritifcate. Check help for more information.")
-            quit()
+            raise Exception("When `signed = True`, you must specify your public signer ceritifcate. Check help for more information.")
 
         global vk
         vk = VerifyingKey.from_der(public)
@@ -167,12 +184,10 @@ def build(obj, secret=None, public=None, includeCert=False):
         
         algo = obj["content"]["signable"]["value"]["header"]["signature_algorithm"]       
         if algo is None:
-            print("`signature_algorithm` is required when `signed = True`, check the docs for possible values.")
-            quit()
+            raise Exception("`signature_algorithm` is required when `signed = True`, check the docs for possible values.")
 
         if algo not in signing_algos.keys():
-            print(f"`{algo}` is not a supported signing algorithm, check the docs for possible values.")
-            quit()
+            raise Exception(f"`{algo}` is not a supported signing algorithm, check the docs for possible values.")
 
         sk.default_hashfunc=signing_algos[algo]
         obj["content"]["signable"]["value"]["header"]["certificate_reference"] = public[-5:]

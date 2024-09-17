@@ -37,16 +37,6 @@ def main():
 
 
 def decode(args):
-    infile = args.infile.read().strip().encode()
-
-    try:
-        out = parse(
-            infile, 
-            public=args.public.read() if args.public else None
-        )
-    except Exception as e:
-        print(e)
-
     def pretty_print(obj: dict):
         for k, v in obj.items():
             if isinstance(v, dict):
@@ -58,8 +48,17 @@ def decode(args):
             else:
                 if v is not None and v is not False and not k.startswith("_"):
                     print(f"{k} = {v}")
-    
-    pretty_print(out)
+
+    infile = args.infile.read().strip().encode()
+
+    try:
+        out = parse(
+            infile, 
+            public=args.public.read() if args.public else None
+        )
+        pretty_print(out)
+    except Exception as e:
+        print(e)
 
 
 def encode(args):
@@ -82,6 +81,17 @@ def encode(args):
                             "signature_creation_date":  None
                         },
                         "message": {
+                            "vds": {
+                                "vds_mrz":                  config.get("top", "vds_mrz", fallback=None),
+                                "vds_number_of_entries":    config.getint("top", "vds_number_of_entries", fallback=None),
+                                "vds_duration_of_stay": {
+                                    "vds_duration_of_stay_days":     config.getint("top", "vds_duration_of_stay_days", fallback=None),
+                                    "vds_duration_of_stay_months":   config.getint("top", "vds_duration_of_stay_months", fallback=None),
+                                    "vds_duration_of_stay_years":    config.getint("top", "vds_duration_of_stay_years", fallback=None)
+                                },
+                                "vds_passport_number": config.get("top", "vds_passport_number", fallback=None),
+                                "vds_visa_type": config.get("top", "vds_visa_type", fallback=None),
+                            },
                             "mrz_td1":  config.get("top", "mrz_td1", fallback=None),
                             "mrz_td3":  config.get("top", "mrz_td3", fallback=None),
                             "can":      config.get("top", "can", fallback=None),

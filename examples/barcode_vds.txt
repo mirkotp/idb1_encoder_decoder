@@ -1,0 +1,7 @@
+country_identifier=UTO
+vds_mrz=V<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<L898902C<3UTO6908061F9406236
+vds_number_of_entries=0
+vds_duration_of_stay_days=90
+vds_duration_of_stay_months=0
+vds_duration_of_stay_years=0
+vds_passport_number=L898902C<
