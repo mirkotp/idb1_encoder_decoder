@@ -111,7 +111,7 @@ idb1_message = Struct(
             "country_identifier"      / C40(Bytes(2)),
             "signature_algorithm"     / If(this._._._.flags.signed, Enum(Byte, **dict((j,i) for (i,j) in enumerate(signing_algos.keys())))),
             "certificate_reference"   / If(this._._._.flags.signed, Bytes(5)),
-                                        Const(b"0x00"), # Date mask, no unknown fields
+                                        If(this._._._.flags.signed, Const(b"0x00")), # Date mask, no unknown fields
             "signature_creation_date" / If(this._._._.flags.signed, Date(Bytes(3)))
         ),
             
