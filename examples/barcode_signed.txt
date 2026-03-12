@@ -1,4 +1,5 @@
 signed=True
+compressed=False
 signature_algorithm=ecdsa_sha512
 country_identifier=UTO
-can=156782
+mrz_td1=I<UTOD231458907<<<<<<<<<<<<<<<7408122F1204159UTO<<<<<<<<<<<6ERIKSSON<<ANNA<MARIA<<<<<<<<<<
