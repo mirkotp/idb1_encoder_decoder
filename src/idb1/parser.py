@@ -1,6 +1,6 @@
 import base64
 import sys
-from hashlib import sha256, sha384, sha512
+from hashlib import sha1, sha256, sha384, sha512
 from ecdsa import SigningKey, VerifyingKey
 from construct import *
 from datetime import datetime
@@ -9,6 +9,7 @@ from datetime import datetime
 sk = None
 vk = None
 signing_algos = dict(ecdsa_sha256=sha256, ecdsa_sha384=sha384, ecdsa_sha512=sha512)
+hashfunc = None
 
 class Signature(Construct):
     def __init__(self, sigfield, bytesfunc):
@@ -19,13 +20,12 @@ class Signature(Construct):
     def _parse(self, stream, context, path):
         sig = self.sigfield._parsereport(stream, context, path)
         if vk is None:
-            print(">>>>>>>>> SIGNATURE: cannot check signature, you must specify a public signer certificate. Check the help for information.", file=sys.stderr)
+            raise Exception("Cannot check signature, you must specify a public signer certificate. Check the help for information.")
         else:
             try:
-                vk.verify(sig, self.bytesfunc(context), hashfunc=sha512)
-                print(">>>>>>>>> SIGNATURE: valid")
-            except:
-                print(">>>>>>>>> SIGNATURE: invalid signature or wrong certificate.", file=sys.stderr)
+                vk.verify(sig, self.bytesfunc(context), hashfunc=hashfunc)
+            except Exception as e:
+                raise e
         return sig
 
     def _build(self, obj, stream, context, path):
@@ -144,21 +144,32 @@ def parse(barcode, public=None):
     if public is not None:
         global vk
         vk = VerifyingKey.from_der(public)
-    return idb1.parse(barcode)
+
+    def clean_json(obj: dict):
+        out = dict()
+        for k, v in obj.items():
+            if isinstance(v, dict):
+                # if raw copy
+                if "offset1" in v and "offset2" in v:
+                    out[k] = clean_json(v["value"])
+                else:
+                    out[k] = clean_json(v)
+            else:
+                if v is not None and v is not False and not k.startswith("_"):
+                    out[k] = v
+        return out
+    return clean_json(idb1.parse(barcode))
 
 def build(obj, secret=None, public=None, includeCert=False):
     if obj["flags"]["signed"] is True:
         if secret is None:
-            print("When `signed = True`, you must specify you secret key. Check help for more information.")
-            quit()
+            raise Exception("Unspecified signing key")
+        if public is None:
+            raise Exception("Unspecified public signer certificate")
 
         global sk
         sk = SigningKey.from_der(secret)
                 
-        if public is None:
-            print("When `signed = True`, you must specify your public signer ceritifcate. Check help for more information.")
-            quit()
-
         global vk
         vk = VerifyingKey.from_der(public)
         
@@ -167,16 +178,15 @@ def build(obj, secret=None, public=None, includeCert=False):
         
         algo = obj["content"]["signable"]["value"]["header"]["signature_algorithm"]       
         if algo is None:
-            print("`signature_algorithm` is required when `signed = True`, check the docs for possible values.")
-            quit()
+             raise Exception("Unspecified signing algorithm")
 
         if algo not in signing_algos.keys():
-            print(f"`{algo}` is not a supported signing algorithm, check the docs for possible values.")
-            quit()
+            raise Exception(f"Unknown signing algorithm: `{algo}`")
 
+        global hashfunc
+        hashfunc = signing_algos[algo]
         sk.default_hashfunc=signing_algos[algo]
-        obj["content"]["signable"]["value"]["header"]["certificate_reference"] = public[-5:]
-
+        obj["content"]["signable"]["value"]["header"]["certificate_reference"] = sha1(public).digest()[-5:]
         date = int(datetime.now().strftime("%m%d%Y")).to_bytes(3)
         obj["content"]["signable"]["value"]["header"]["signature_creation_date"] = date
 
