@@ -94,8 +94,8 @@ with col2:
         certificate.getvalue() if certificate else None, 
         cert_included)
 
-        with st.expander("Raw barcode data", expanded=True):
-            st.write(f"{data.decode()} ({len(data)} bytes)")
+        with st.expander(f"Raw barcode data ({len(data)} bytes)", expanded=False):
+            st.write(f"{data.decode()}")
     except Exception as e:
         st.error(str(e))
         data = b""
@@ -107,7 +107,7 @@ with col2:
 
         if data.strip():
             try:
-                qr = qrcode.make(data)
+                qr = qrcode.make(data, border=0)
                 buf = BytesIO()
                 qr.save(buf)
                 st.image(buf.getvalue())
@@ -128,10 +128,9 @@ with col2:
 
                 st.image(result.stdout)
             except Exception as e:
-                st.error("Too much data") 
+                st.error("Too much data")
         else:
             st.write("No barcode data.")
-
 
 
     with subcol2:
