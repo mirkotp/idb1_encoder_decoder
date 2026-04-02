@@ -5,6 +5,8 @@ from io import BytesIO
 import re
 import subprocess
 
+MEMBER_STATES = ["AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FIN","FRA","DEU","GRC","HUN","IRL","ITA","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE"]
+
 st.set_page_config(layout="wide")
 
 st.title("🇪🇺 EU Visa IDB Barcode Demo ✨", text_alignment="center")
@@ -15,7 +17,7 @@ with col1:
     st.header("Input Data", divider="blue")
     st.subheader("Header")
 
-    country_identifier = st.selectbox("Country Identifier", options= ["AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FIN","FRA","DEU","GRC","HUN","IRL","ITA","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE"])
+    country_identifier = st.selectbox("Country Identifier", options=MEMBER_STATES)
 
     with st.container(border=True):
         compressed = st.checkbox("Compressed", value=False)
@@ -31,26 +33,10 @@ with col1:
 
 
     st.subheader("Message")
-    mrz_td1 = st.text_input("MRZ TD1", value=None)
-    if mrz_td1:
-        if len(mrz_td1) > 0 and len(mrz_td1) != 90:
-            st.error("Invalid MRZ TD1 length")
-        if not bool(re.fullmatch(r"[A-Z0-9<]+", mrz_td1)):
-            st.error("Invalid characters found")
-
-    mrz_td3 = st.text_input("MRZ TD3", value=None)
-    if mrz_td3:
-        if len(mrz_td3) > 0 and len(mrz_td3) != 88:
-            st.error("Invalid MRZ TD3 length")
-        if not bool(re.fullmatch(r"[A-Z0-9<]+", mrz_td3)):
-            st.error("Invalid characters found")
-
-    can = st.text_input("CAN", value=None, max_chars=6)
-    if can:
-        if len(can) > 0 and len(can) != 6:
-            st.error("Invalid CAN length")
-        if not can.isdigit():
-            st.error("CAN must be numeric")
+    visa_issuing_member_state = st.selectbox("Issuing Member State", options=MEMBER_STATES, index=MEMBER_STATES.index(country_identifier), disabled=True)           
+    visa_holder_full_name = st.text_input("Holder full name", value=None)
+    visa_holder_surname_at_birth = st.text_input("Holder surname at birth", value=None)
+    visa_date_of_birth = st.date_input("Date of birth", value=None, max_value=None, min_value="1890-01-01")
 
     photo = st.file_uploader("Photo", accept_multiple_files=False)
 
@@ -79,10 +65,12 @@ with col2:
                             "signature_creation_date":  None
                         },
                         "message": {
-                            "mrz_td1":  mrz_td1 if mrz_td1 else None,
-                            "mrz_td3":  mrz_td3 if mrz_td3 else None,
-                            "can":      can if can else None,
-                            "photo":    photo.getvalue() if photo else None
+                                "eu_visa": {
+                                    "issuing_member_state": visa_issuing_member_state,
+                                    "full_name": visa_holder_full_name.upper() if visa_holder_full_name else "",
+                                    "surname_at_birth": visa_holder_surname_at_birth.upper() if visa_holder_surname_at_birth else "",
+                                    "date_of_birth": int(visa_date_of_birth.strftime("%m%d%Y")).to_bytes(3) if visa_date_of_birth else None
+                                }
                         },
                     },
                 },
@@ -144,5 +132,3 @@ with col2:
                 st.error(str(e))
         else:
             st.write("No barcode data.")
-
-    
