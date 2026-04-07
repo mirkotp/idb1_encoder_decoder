@@ -1,6 +1,38 @@
 import base64
 from construct import *
 
+def as_instance(arg): 
+    x = arg()
+    return x
+
+@as_instance
+class DerLengthInt(Construct):
+    def _parse(self, stream, context, path):
+        b = stream_read(stream, 1, path)
+        if b[0] >= 0b10000000:
+            num_bytes = b[0] & 0b01111111
+            b = stream_read(stream, num_bytes, path)
+        return int.from_bytes(b, 'big')
+
+    def _build(self, obj, stream, context, path):
+        if not isinstance(obj, int):
+            raise IntegerError(f"value {obj} is not an integer", path=path)
+        if obj < 0:
+            raise IntegerError(f"DerLengthInt cannot build from negative number {obj}", path=path)
+        x = obj
+        B = bytearray()
+        bytes_needed = (x.bit_length() + 7) // 8
+        if x >= 0b10000000:
+            B.append(0b10000000 | (bytes_needed & 0b01111111))
+        ba = bytearray(x.to_bytes(max(bytes_needed, 1), 'big'))
+        B += ba
+        stream_write(stream, bytes(B), len(B), path)
+        return obj
+
+
+    def _emitprimitivetype(self, ksy, bitwise):
+        return "vlq_base128_le"
+
 class Signature(Construct):
     def __init__(self, sigfield, bytesfunc, hashfunc=None, vk=None, sk=None):
         super().__init__()

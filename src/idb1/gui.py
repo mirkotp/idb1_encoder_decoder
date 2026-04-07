@@ -34,15 +34,21 @@ with col1:
 
     st.subheader("Message")
     visa_issuing_member_state = st.selectbox("Issuing Member State", options=MEMBER_STATES, index=MEMBER_STATES.index(country_identifier), disabled=True)           
-    visa_holder_full_name = st.text_input("Holder full name", value=None)
-    visa_holder_surname_at_birth = st.text_input("Holder surname at birth", value=None)
-    visa_date_of_birth = st.date_input("Date of birth", value=None, max_value=None, min_value="1890-01-01")
+    visa_holder_full_name = st.text_input("Holder full name", value="Some Person")
+    visa_holder_surname_at_birth = st.text_input("Holder surname at birth", value="Person")
+    visa_date_of_birth = st.date_input("Date of birth", value="1990-01-01", max_value=None, min_value="1890-01-01")
+    visa_country_and_pob = st.text_input("Country and Place of Birth", value="Rio de Janeiro Brazil")
 
-    photo = st.file_uploader("Photo", accept_multiple_files=False)
+    sex_labels = { "M": "Male", "F": "Female", "X": "Unspecified" }
+    visa_sex = st.selectbox("Sex", options=sex_labels.keys(), format_func=lambda x: sex_labels[x], index=0)
 
-    if photo:
+    nationality = st.text_input("Nationality", value="Argentinian")
+    nationality_at_birth = st.text_input("Nationality at Birth", value="Brazilian")
+    visa_photo = st.file_uploader("Photo", accept_multiple_files=False)
+
+    if visa_photo:
         try:
-            st.image(photo)
+            st.image(visa_photo)
         except:
             st.warning("Unrecognised image file format")
 
@@ -69,7 +75,11 @@ with col2:
                                     "issuing_member_state": visa_issuing_member_state,
                                     "full_name": visa_holder_full_name.upper() if visa_holder_full_name else "",
                                     "surname_at_birth": visa_holder_surname_at_birth.upper() if visa_holder_surname_at_birth else "",
-                                    "date_of_birth": int(visa_date_of_birth.strftime("%m%d%Y")).to_bytes(3) if visa_date_of_birth else None
+                                    "date_of_birth": int(visa_date_of_birth.strftime("%m%d%Y")).to_bytes(3) if visa_date_of_birth else None,
+                                    "country_and_pob": visa_country_and_pob.upper() if visa_country_and_pob else "",
+                                    "sex": visa_sex.encode() if visa_sex else None,
+                                    "nationality": nationality.upper() if nationality else None,
+                                    "nationality_at_birth": nationality_at_birth.upper() if nationality_at_birth else None,
                                 }
                         },
                     },

@@ -14,19 +14,23 @@ def make_idb1():
     msg_mrz_td1 =   FocusedSeq("f", Const(b"\x07"), Const(b"\x3c"), "f" / StripLT(C40(Bytes(60))))
     msg_mrz_td3 =   FocusedSeq("f", Const(b"\x08"), Const(b"\x3c"), "f" / StripLT(C40(Bytes(60))))
     msg_can =       FocusedSeq("f", Const(b"\x09"), Const(b"\x04"), "f" / C40(Bytes(4)))
-    msg_photo =     FocusedSeq("f", Const(b"\xF0"), "f" / Prefixed(VarInt, GreedyBytes))
-    msg_eu_visa =   FocusedSeq("f", Const(b"\xF1"), "f" / Prefixed(VarInt, Struct(
+    msg_photo =     FocusedSeq("f", Const(b"\x1B"), "f" / Prefixed(DerLengthInt, GreedyBytes))
+    msg_eu_visa =   FocusedSeq("f", Const(b"\x1C"), "f" / Prefixed(DerLengthInt, Struct(
         "issuing_member_state"  / FocusedSeq("f", Const(b"\x00"), "f" / C40(Bytes(2))),
-        "full_name"             / FocusedSeq("f", Const(b"\x01"), "f" / Prefixed(VarInt, C40(GreedyBytes))),
-        "surname_at_birth"      / FocusedSeq("f", Const(b"\x02"), "f" / Prefixed(VarInt, C40(GreedyBytes))),
-        "date_of_birth"         / FocusedSeq("f", Const(b"\x03"), "f" / Date(Bytes(3)))
+        "full_name"             / FocusedSeq("f", Const(b"\x01"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "surname_at_birth"      / FocusedSeq("f", Const(b"\x02"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "date_of_birth"         / FocusedSeq("f", Const(b"\x03"), "f" / Date(Bytes(3))),
+        "country_and_pob"       / FocusedSeq("f", Const(b"\x04"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "sex"                   / FocusedSeq("f", Const(b"\x05"), "f" / Bytes(1)),
+        "nationality"           / FocusedSeq("f", Const(b"\x06"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "nationality_at_birth"  / FocusedSeq("f", Const(b"\x07"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
     )))
 
-    msg_signer_certificate = FocusedSeq("sc", Const(b"\x7e"), "sc" / Prefixed(VarInt, GreedyBytes))
+    msg_signer_certificate = FocusedSeq("sc", Const(b"\x7e"), "sc" / Prefixed(DerLengthInt, GreedyBytes))
     msg_signature_data =  FocusedSeq(
         "sig",
         Const(b"\x7f"),
-        "sig" / Prefixed(VarInt, Signature(GreedyBytes, this._.signable.data, hashfunc=hashfunc, vk=vk, sk=sk))
+        "sig" / Prefixed(DerLengthInt, Signature(GreedyBytes, this._.signable.data, hashfunc=hashfunc, vk=vk, sk=sk))
     )
 
     idb1_message = Struct(
@@ -40,7 +44,7 @@ def make_idb1():
             ),
                 
             Const(b"\x61"), # Message start
-            "message" / Prefixed(VarInt, Struct (
+            "message" / Prefixed(DerLengthInt, Struct (
                 "mrz_td1"   / Optional(msg_mrz_td1),
                 "mrz_td3"   / Optional(msg_mrz_td3),
                 "can"       / Optional(msg_can),
