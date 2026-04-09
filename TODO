@@ -1,2 +1,5 @@
 - implement full characters C40
 - date encoding mask
+- signature valid/invalid
+- JAB multisymbol support
+- interactive image upload and compression and cropping options

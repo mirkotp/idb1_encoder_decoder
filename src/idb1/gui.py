@@ -1,6 +1,6 @@
 from idb1.parser import build, parse
 import streamlit as st
-import qrcode
+from qrcode import QRCode
 from io import BytesIO
 import re
 import subprocess
@@ -11,7 +11,7 @@ st.set_page_config(layout="wide")
 
 st.title("🇪🇺 EU Visa IDB Barcode Demo ✨", text_alignment="center")
 
-col1, col2 = st.columns([2, 3])
+col1, col2 = st.columns([3, 2])
 
 with col1:
     st.header("Input Data", divider="blue")
@@ -54,7 +54,7 @@ with col1:
 
 
 with col2:
-    st.header("Generated Barcode", divider="red")
+    st.header("Barcode Generation", divider="red")
     try:      
         data = build({
             "flags": {
@@ -98,47 +98,76 @@ with col2:
         st.error(str(e))
         data = b""
 
-    subcol1, subcol2 = st.columns(2, gap="xxsmall")
-
-    with subcol1:
-        st.subheader("QR Code")
-
-        if data.strip():
-            try:
-                qr = qrcode.make(data, border=0)
-                buf = BytesIO()
-                qr.save(buf)
-                st.image(buf.getvalue())
-            except Exception as e:
-                st.error("Too much data")
-        else:
-            st.write("No barcode data.")
-        
-        st.subheader("JAB Code")
-
-        if data.strip():
-            try:
-                result = subprocess.run(
-                    ["./bin/jabcodeWriter", "--input", data, "--output", "/dev/stdout", "--color-number", "4"],
-                    capture_output=True,
-                    check=True
-                )
-
-                st.image(result.stdout)
-            except Exception as e:
-                st.error("Too much data")
-        else:
-            st.write("No barcode data.")
-
-
-    with subcol2:
-        st.subheader("Decoded data")
-
+    with st.expander(f"Decoded data (JSON)", expanded=False):
         if data.strip():
             try:
                 parsed = parse(data, certificate.getvalue() if certificate else None)
-                st.json(parsed)
+                st.json(parsed, expanded=True)
             except Exception as e:
                 st.error(str(e))
         else:
             st.write("No barcode data.")
+
+    barcode_type = st.selectbox("Barcode type", options=["QR Code", "JAB Code"])
+
+    with st.container(border=True):
+        match barcode_type:
+            case "QR Code":
+                sc1, sc2 = st.columns(2)
+                with sc1:
+                    qr_version = st.select_slider("QR Code version", options=["Auto"]+list(range(1, 41)), value="Auto")
+                with sc2:
+                    error_correction_levels = ["L (7%)", "M (15%)", "Q (25%)", "H (30%)"]
+                    qr_error_correction = st.select_slider("QR Code error correction level", options=["L (7%)", "M (15%)", "Q (25%)", "H (30%)"], value="M (15%)")
+
+                if data.strip():
+                    try:
+                        qr = QRCode(version=(qr_version if qr_version != "Auto" else None), error_correction=error_correction_levels.index(qr_error_correction), border=0)
+                        qr.add_data(data)
+                        qr.make(fit=False)
+                        img = qr.make_image()
+                        buf = BytesIO()
+                        img.save(buf)
+                        
+                        with st.container(horizontal_alignment="center"):
+                            st.image(buf.getvalue())
+                    except Exception as e:
+                        st.error("Too much data")
+                else:
+                    st.write("No barcode data.")
+            case "JAB Code":
+                sc1, sc2 = st.columns(2)
+                with sc1:
+                    jab_error_correction = st.slider("QR Code error correction level", min_value=1, max_value=10, value=3, step=1)
+                    jab_colors = st.select_slider("Number of colors", options=[4, 8])
+                with sc2:
+                    symbol_version_vertical = st.select_slider("Symbol version (vertical)", options=["Auto"]+list(range(1, 33)), value="Auto")
+                    symbol_version_horizontal = st.select_slider("Symbol version (horizontal)", options=["Auto"]+list(range(1, 33)), value="Auto")
+                #jab_multisymbol = st.checkbox("Use multiple symbols", value=False)
+
+                additional_params = []
+                error = False
+                if (symbol_version_vertical == "Auto" and symbol_version_horizontal == "Auto"):
+                    pass
+                elif(symbol_version_vertical != "Auto" and symbol_version_horizontal != "Auto"):
+                    additional_params.extend(["--symbol-version", str(symbol_version_horizontal), str(symbol_version_vertical)])
+                else:
+                    st.warning("Both symbol versions (horizontal and vertical) must be set to auto or both must be set to a specific version.")
+                    error = True
+
+                if not error:
+                    if data.strip():
+                        try:
+                            command = ["./bin/jabcodeWriter", "--input", data, "--output", "/dev/stdout", "--color-number", str(jab_colors), "--ecc-level", str(jab_error_correction)] + additional_params
+                            result = subprocess.run(
+                                command,
+                                capture_output=True,
+                                check=True
+                            )
+
+                            with st.container(horizontal_alignment="center"):
+                                st.image(result.stdout)
+                        except Exception as e:
+                            st.error("Too much data.")
+                    else:
+                        st.write("No barcode data.")

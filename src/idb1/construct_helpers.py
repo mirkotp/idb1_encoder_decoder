@@ -29,10 +29,6 @@ class DerLengthInt(Construct):
         stream_write(stream, bytes(B), len(B), path)
         return obj
 
-
-    def _emitprimitivetype(self, ksy, bitwise):
-        return "vlq_base128_le"
-
 class Signature(Construct):
     def __init__(self, sigfield, bytesfunc, hashfunc=None, vk=None, sk=None):
         super().__init__()
