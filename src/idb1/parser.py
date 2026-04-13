@@ -24,7 +24,9 @@ def make_idb1():
         "sex"                   / FocusedSeq("f", Const(b"\x05"), "f" / Bytes(1)),
         "nationality"           / FocusedSeq("f", Const(b"\x06"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
         "nationality_at_birth"  / FocusedSeq("f", Const(b"\x07"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "photo"                 / FocusedSeq("f", Const(b"\x1F"), "f" / Prefixed(DerLengthInt, GreedyBytes))
     )))
+
 
     msg_signer_certificate = FocusedSeq("sc", Const(b"\x7e"), "sc" / Prefixed(DerLengthInt, GreedyBytes))
     msg_signature_data =  FocusedSeq(
