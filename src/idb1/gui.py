@@ -1,5 +1,4 @@
 import io
-
 from idb1.parser import build, parse
 import streamlit as st
 from qrcode import QRCode
@@ -12,11 +11,8 @@ from PIL import Image
 MEMBER_STATES = ["AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FIN","FRA","DEU","GRC","HUN","IRL","ITA","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE"]
 
 st.set_page_config(layout="wide")
-
 st.title("🇪🇺 EU Visa IDB Barcode Demo ✨", text_alignment="center")
-
 col1, col2 = st.columns([3, 2])
-
 with col1:
     st.header("Input Data", divider="blue")
     tab1, tab2, tab3 = st.tabs(["Header", "EU Visa", "Photo"])
@@ -57,64 +53,80 @@ with col1:
         with st.container(border=True):
             visa_photo_original = st.file_uploader("Face Photograph File", accept_multiple_files=False)
             try:
-                try:
-                    img = Image.open(visa_photo_original)
-                except Exception as e:
-                    raise Exception("Invalid image file.") from e
-        
-                visa_photo = visa_photo_original
-                visa_photo_width_scale = st.slider("Width Scale (%)", min_value=1, max_value=100, value=100)
+                if visa_photo_original is not None:
+                    try:
+                        img = Image.open(visa_photo_original)
+                    except Exception as e:
+                        raise Exception("Invalid image file.") from e
+            
+                    visa_photo = visa_photo_original
+                    visa_photo_width_scale = st.slider("Width Scale (%)", min_value=1, max_value=100, value=100)
 
-                sc1, sc2, sc3 = st.columns([1, 1, 3])
-                with sc1:
-                    visa_photo_grayscale = st.checkbox("Grayscale", value=False)
-                    if visa_photo_grayscale:
-                        img = img.convert("L")
-                with sc2:
-                    visa_photo_crop = st.checkbox("Crop Face", value=False)
-                with sc3:
-                    if visa_photo_crop:
-                        try:
-                            detections = DeepFace.extract_faces(
-                                img_path=visa_photo_original,
-                            )
-                        except Exception as e:
-                            raise Exception("No facial features found in this picture.") from e
+                    sc1, sc2, sc3 = st.columns([1, 1, 3])
+                    with sc1:
+                        visa_photo_grayscale = st.checkbox("Grayscale", value=False)
+                        if visa_photo_grayscale:
+                            img = img.convert("L")
+                    with sc2:
+                        visa_photo_crop = st.checkbox("Crop Face", value=False)
+                    with sc3:
+                        if visa_photo_crop:
+                            try:
+                                detections = DeepFace.extract_faces(
+                                    img_path=visa_photo_original,
+                                )
+                            except Exception as e:
+                                raise Exception("No facial features found in this picture.") from e
 
-                        x = detections[0]["facial_area"]["x"]
-                        y = detections[0]["facial_area"]["y"]
-                        w = detections[0]["facial_area"]["w"]
-                        h = detections[0]["facial_area"]["h"]
+                            x = detections[0]["facial_area"]["x"]
+                            y = detections[0]["facial_area"]["y"]
+                            w = detections[0]["facial_area"]["w"]
+                            h = detections[0]["facial_area"]["h"]
 
-                        visa_photo_crop_padding = st.slider("Crop Margin (pixels)", min_value=0, max_value=50, value=0)
-                        left = max(x - visa_photo_crop_padding, 0)
-                        top = max(y - visa_photo_crop_padding, 0)
-                        right = x + w + visa_photo_crop_padding
-                        bottom = y + h + visa_photo_crop_padding
+                            visa_photo_crop_padding = st.slider("Crop Margin (pixels)", min_value=0, max_value=50, value=0)
+                            left = max(x - visa_photo_crop_padding, 0)
+                            top = max(y - visa_photo_crop_padding, 0)
+                            right = x + w + visa_photo_crop_padding
+                            bottom = y + h + visa_photo_crop_padding
 
-                        img = img.crop((left, top, right, bottom))
+                            img = img.crop((left, top, right, bottom))
 
-                sc1, sc2 = st.columns([1, 4])
-                with sc1:
-                    visa_photo_compression_algo = st.selectbox("Compression Algorithm", options=["AVIF", "JPEG", "JPEG2000", "WEBP"], index=0)
-                with sc2:
-                    visa_photo_avif_quality = st.slider("Compression Quality", min_value=0, max_value=100, value=20)
+                    visa_photo_compression_speed = None
+                    sc1, sc2 = st.columns([1, 4])
+                    with sc1:
+                        visa_photo_compression_algo = st.selectbox("Compression Algorithm", options=["AVIF", "JPEG", "JPEG2000", "WEBP"], index=0)
+                        if visa_photo_compression_algo == "AVIF":
+                                visa_photo_compression_speed = st.slider("Compression Speed", min_value=0, max_value=10, value=6)
+                        if visa_photo_compression_algo == "WEBP":
+                                visa_photo_compression_speed = 6 - st.slider("Compression Speed", min_value=0, max_value=6, value=4)
+                    with sc2:
+                        visa_photo_avif_quality = st.slider("Compression Quality", min_value=0, max_value=100, value=20)                   
 
-                st.divider()
-                img = img.resize((int(img.width * visa_photo_width_scale / 100), int(img.height * visa_photo_width_scale / 100)))
-                sc1, sc2 = st.columns(2)
-                with sc1:
-                    original = Image.open(visa_photo_original)
-                    st.caption(f"**Original**  \n{original.size} pixels  \n{visa_photo_original.size} bytes", text_alignment="center")
-                    with st.container(horizontal_alignment="center"):
-                        st.image(original)
-                with sc2:
-                    buffer = io.BytesIO()
-                    img.save(buffer, format=visa_photo_compression_algo, quality_mode="rates", quality_layers=[100-visa_photo_avif_quality], no_jp2=True, quality=visa_photo_avif_quality, speed=0) 
-                    visa_photo = buffer.getvalue()
-                    st.caption(f"**Compressed**  \n{img.size} pixels  \n{buffer.tell()} bytes", text_alignment="center")
-                    with st.container(horizontal_alignment="center"):
-                        st.image(buffer)
+                    st.divider()
+                    img = img.resize((int(img.width * visa_photo_width_scale / 100), int(img.height * visa_photo_width_scale / 100)))
+                    sc1, sc2 = st.columns(2)
+                    with sc1:
+                        original = Image.open(visa_photo_original)
+                        st.caption(f"**Original**  \n{original.size} pixels  \n{visa_photo_original.size} bytes", text_alignment="center")
+                        with st.container(horizontal_alignment="center"):
+                            st.image(original)
+                    with sc2:
+                        buffer = io.BytesIO()
+                        img.save(buffer, 
+                                 format=visa_photo_compression_algo, 
+                                 quality_mode="rates",                           # JPEG2000 
+                                 quality_layers=[100-visa_photo_avif_quality],   # JPEG2000 
+                                 no_jp2=True,                                    # JPEG2000
+                                 irreversible=True,                              # JPEG2000
+                                 optimize=True,                                  # JPEG
+                                 quality=visa_photo_avif_quality,                # JPEG, AVIF, WEBP
+                                 speed=visa_photo_compression_speed,             # AVIF
+                                 method=visa_photo_compression_speed             # WEBP
+                        )  
+                        visa_photo = buffer.getvalue()
+                        st.caption(f"**Compressed**  \n{img.size} pixels  \n{buffer.tell()} bytes", text_alignment="center")
+                        with st.container(horizontal_alignment="center"):
+                            st.image(buffer)
             except Exception as e:
                 st.error(str(e))
 
@@ -130,34 +142,29 @@ with col2:
                 "signable": {
                     "value": {
                         "header": {
-                            "country_identifier":       country_identifier,
-                            "signature_algorithm":      signature_algorithm if signed else None,
-                            "certificate_reference":    None,
-                            "signature_creation_date":  None
+                            "country_identifier": country_identifier,
+                            "signature_algorithm": signature_algorithm if signed else None,
                         },
                         "message": {
-                                "eu_visa": {
-                                    "issuing_member_state": visa_issuing_member_state,
-                                    "full_name": visa_holder_full_name.upper() if visa_holder_full_name else "",
-                                    "surname_at_birth": visa_holder_surname_at_birth.upper() if visa_holder_surname_at_birth else "",
-                                    "date_of_birth": int(visa_date_of_birth.strftime("%m%d%Y")).to_bytes(3) if visa_date_of_birth else None,
-                                    "country_and_pob": visa_country_and_pob.upper() if visa_country_and_pob else "",
-                                    "sex": visa_sex.encode() if visa_sex else None,
-                                    "nationality": nationality.upper() if nationality else None,
-                                    "nationality_at_birth": nationality_at_birth.upper() if nationality_at_birth else None,
-
-                                    "photo": visa_photo if visa_photo else None
-                                }
+                            "eu_visa": {
+                                "issuing_member_state": visa_issuing_member_state,
+                                "full_name":            visa_holder_full_name.upper() if visa_holder_full_name else "",
+                                "surname_at_birth":     visa_holder_surname_at_birth.upper() if visa_holder_surname_at_birth else "",
+                                "date_of_birth":        int(visa_date_of_birth.strftime("%m%d%Y")).to_bytes(3) if visa_date_of_birth else None,
+                                "country_and_pob":      visa_country_and_pob.upper() if visa_country_and_pob else "",
+                                "sex":                  visa_sex.encode() if visa_sex else None,
+                                "nationality":          nationality.upper() if nationality else None,
+                                "nationality_at_birth": nationality_at_birth.upper() if nationality_at_birth else None,
+                                "photo":                visa_photo if visa_photo else None
+                            }
                         },
                     },
-                },
-                "signer_certificate":   None,
-                "signature_data":       None
+                }
             }
         }, 
-        signing_key.getvalue() if signing_key else None, 
-        certificate.getvalue() if certificate else None, 
-        cert_included)
+        sk=signing_key.getvalue() if signing_key else None, 
+        vk=certificate.getvalue() if certificate else None, 
+        includeCert=cert_included)
 
         with st.expander(f"Raw barcode data ({len(data)} bytes)", expanded=False):
             st.write(f"{data.decode()}")
@@ -168,7 +175,13 @@ with col2:
     with st.expander(f"Decoded data (JSON)", expanded=False):
         if data.strip():
             try:
-                parsed = parse(data, certificate.getvalue() if certificate else None)
+                parsed = parse(data, vk=certificate.getvalue() if certificate else None)
+
+                if parsed["flags"] and parsed["flags"]["signed"]:
+                    st.write(f"Signature: {'✅ Valid'}")
+                else:
+                    st.write("Signature: Not signed")
+
                 st.json(parsed, expanded=True)
             except Exception as e:
                 st.error(str(e))

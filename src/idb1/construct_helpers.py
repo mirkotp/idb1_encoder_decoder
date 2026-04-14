@@ -1,5 +1,8 @@
 import base64
+from hashlib import sha256, sha384, sha512
 from construct import *
+
+SIGNING_ALGOS = dict(ecdsa_sha256=sha256, ecdsa_sha384=sha384, ecdsa_sha512=sha512)
 
 def as_instance(arg): 
     x = arg()
@@ -30,11 +33,10 @@ class DerLengthInt(Construct):
         return obj
 
 class Signature(Construct):
-    def __init__(self, sigfield, bytesfunc, hashfunc=None, vk=None, sk=None):
+    def __init__(self, sigfield, bytesfunc, vk=None, sk=None):
         super().__init__()
         self.sigfield = sigfield
         self.bytesfunc = bytesfunc
-        self.hashfunc = hashfunc
         self.vk = vk
         self.sk = sk
 
@@ -43,10 +45,7 @@ class Signature(Construct):
         if self.vk is None:
             raise Exception("Cannot check signature, you must specify a public signer certificate. Check the help for information.")
         else:
-            try:
-                self.vk.verify(sig, self.bytesfunc(context), hashfunc=self.hashfunc)
-            except Exception as e:
-                raise e
+            self.vk.verify(sig, self.bytesfunc(context), hashfunc=SIGNING_ALGOS[context._.signable.value.header.signature_algorithm])
         return sig
 
     def _build(self, obj, stream, context, path):

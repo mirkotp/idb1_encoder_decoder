@@ -1,6 +1,6 @@
 - implement all eu visa fields
 - implement full characters C40
 - date encoding mask
-- signature valid/invalid
 - JAB multisymbol support
+- signature validation should not cause an exception in parsing
 - make it easily installable
