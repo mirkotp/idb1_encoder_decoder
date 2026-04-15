@@ -11,14 +11,15 @@ def make_idb1(sk=None, vk=None):
     msg_can =       FocusedSeq("f", Const(b"\x09"), Const(b"\x04"), "f" / C40(Bytes(4)))
     msg_photo =     FocusedSeq("f", Const(b"\x1B"), "f" / Prefixed(DerLengthInt, GreedyBytes))
     msg_eu_visa =   FocusedSeq("f", Const(b"\x1C"), "f" / Prefixed(DerLengthInt, Struct(
-        "issuing_member_state"  / FocusedSeq("f", Const(b"\x00"), "f" / C40(Bytes(2))),
-        "full_name"             / FocusedSeq("f", Const(b"\x01"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
-        "surname_at_birth"      / FocusedSeq("f", Const(b"\x02"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
-        "date_of_birth"         / FocusedSeq("f", Const(b"\x03"), "f" / Date(Bytes(3))),
-        "country_and_pob"       / FocusedSeq("f", Const(b"\x04"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
-        "sex"                   / FocusedSeq("f", Const(b"\x05"), "f" / Bytes(1)),
-        "nationality"           / FocusedSeq("f", Const(b"\x06"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
-        "nationality_at_birth"  / FocusedSeq("f", Const(b"\x07"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "issuing_member_state"  / FocusedSeq("f", Const(b"\x01"), "f" / C40(Bytes(2))),
+        "full_name"             / FocusedSeq("f", Const(b"\x02"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "surname_at_birth"      / Optional(FocusedSeq("f", Const(b"\x03"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
+        "date_of_birth"         / FocusedSeq("f", Const(b"\x04"), "f" / Date(Bytes(4))),
+        "country_of_birth"      / FocusedSeq("f", Const(b"\x05"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "place_of_birth"        / Optional(FocusedSeq("f", Const(b"\x06"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
+        "sex"                   / FocusedSeq("f", Const(b"\x07"), "f" / Bytes(1)),
+        "nationality"           / FocusedSeq("f", Const(b"\x08"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "nationality_at_birth"  / Optional(FocusedSeq("f", Const(b"\x09"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
         "photo"                 / Optional(FocusedSeq("f", Const(b"\x1F"), "f" / Prefixed(DerLengthInt, GreedyBytes)))
     )))
 
@@ -30,7 +31,7 @@ def make_idb1(sk=None, vk=None):
                 "signature_algorithm"     / If(this._._._.flags.signed, Enum(Byte, **dict((j,i) for (i,j) in enumerate(SIGNING_ALGOS.keys())))),
                 "certificate_reference"   / If(this._._._.flags.signed, Bytes(5)),
                                             If(this._._._.flags.signed, Const(b"\x00")), # Date mask, no unknown fields
-                "signature_creation_date" / If(this._._._.flags.signed, Date(Bytes(3)))
+                "signature_creation_date" / If(this._._._.flags.signed, Date(Bytes(4)))
             ),
                 
             Const(b"\x61"), # Message start
@@ -118,5 +119,5 @@ def build(obj, sk=None, vk=None, includeCert=False):
         vk.default_hashfunc = hashfunc
 
         obj["content"]["signable"]["value"]["header"]["certificate_reference"] = sha1(rawCert).digest()[-5:]
-        obj["content"]["signable"]["value"]["header"]["signature_creation_date"] = int(datetime.now().strftime("%m%d%Y")).to_bytes(3)
+        obj["content"]["signable"]["value"]["header"]["signature_creation_date"] = int(datetime.now().strftime("%m%d%Y")).to_bytes(4)
     return make_idb1(sk=sk, vk=vk).build(obj)

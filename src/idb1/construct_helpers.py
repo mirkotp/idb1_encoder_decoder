@@ -103,13 +103,18 @@ class StripLT(Adapter):
     
 class Date(Adapter):
     def _decode(self, obj, context, path):
-        string_date = str(int.from_bytes(obj, signed=False))
+        mask = obj[0]
+        string_date = str(int.from_bytes(obj[1:], signed=False))
         if len(string_date) == 7:
             string_date = "0" + string_date
-        
+
+        for i in range(8):
+            if (mask >> i) & 1:
+                string_date = string_date[:i] + "X" + string_date[i+1:]
         return string_date[4:] + "-" + string_date[0:2] + "-" + string_date[2:4]
 
     def _encode(self, obj, context, path):
+
         # Not needed at the moment, expected input is 
         # int(THE_DATE.strftime("%m%d%Y")).to_bytes(3)
         return obj

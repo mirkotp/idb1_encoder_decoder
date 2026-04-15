@@ -1,4 +1,3 @@
-import io
 from idb1.parser import build, parse
 import streamlit as st
 from qrcode import QRCode
@@ -6,7 +5,6 @@ from io import BytesIO
 import subprocess
 from PIL import Image
 from deepface import DeepFace
-from PIL import Image   
 
 MEMBER_STATES = ["AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FIN","FRA","DEU","GRC","HUN","IRL","ITA","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE"]
 
@@ -39,7 +37,8 @@ with col1:
         visa_holder_full_name = st.text_input("Holder full name", value="Some Person")
         visa_holder_surname_at_birth = st.text_input("Holder surname at birth", value="Person")
         visa_date_of_birth = st.date_input("Date of birth", value="1990-01-01", max_value=None, min_value="1890-01-01")
-        visa_country_and_pob = st.text_input("Country and Place of Birth", value="Rio de Janeiro Brazil")
+        visa_country_of_birth = st.text_input("Country of Birth", value="Brazil")
+        visa_place_of_birth = st.text_input("Place of Birth", value="Rio de Janeiro")
 
         sex_labels = { "M": "Male", "F": "Female", "X": "Unspecified" }
         visa_sex = st.selectbox("Sex", options=sex_labels.keys(), format_func=lambda x: sex_labels[x], index=0)
@@ -111,7 +110,7 @@ with col1:
                         with st.container(horizontal_alignment="center"):
                             st.image(original)
                     with sc2:
-                        buffer = io.BytesIO()
+                        buffer = BytesIO()
                         img.save(buffer, 
                                  format=visa_photo_compression_algo, 
                                  quality_mode="rates",                           # JPEG2000 
@@ -150,8 +149,9 @@ with col2:
                                 "issuing_member_state": visa_issuing_member_state,
                                 "full_name":            visa_holder_full_name.upper() if visa_holder_full_name else "",
                                 "surname_at_birth":     visa_holder_surname_at_birth.upper() if visa_holder_surname_at_birth else "",
-                                "date_of_birth":        int(visa_date_of_birth.strftime("%m%d%Y")).to_bytes(3) if visa_date_of_birth else None,
-                                "country_and_pob":      visa_country_and_pob.upper() if visa_country_and_pob else "",
+                                "date_of_birth":        int(visa_date_of_birth.strftime("%m%d%Y")).to_bytes(4) if visa_date_of_birth else None,
+                                "country_of_birth":     visa_country_of_birth.upper() if visa_country_of_birth else "",
+                                "place_of_birth":       visa_place_of_birth.upper() if visa_place_of_birth else "",
                                 "sex":                  visa_sex.encode() if visa_sex else None,
                                 "nationality":          nationality.upper() if nationality else None,
                                 "nationality_at_birth": nationality_at_birth.upper() if nationality_at_birth else None,
