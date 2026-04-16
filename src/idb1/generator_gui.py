@@ -8,7 +8,7 @@ from deepface import DeepFace
 
 MEMBER_STATES = ["AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FIN","FRA","DEU","GRC","HUN","IRL","ITA","LVA","LTU","LUX","MLT","NLD","POL","PRT","ROU","SVK","SVN","ESP","SWE"]
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", page_title="EU Visa IDB Barcode Demo", page_icon="🇪🇺")
 st.title("🇪🇺 EU Visa IDB Barcode Demo ✨", text_alignment="center")
 col1, col2 = st.columns([3, 2])
 with col1:
@@ -176,12 +176,6 @@ with col2:
         if data.strip():
             try:
                 parsed = parse(data, vk=certificate.getvalue() if certificate else None)
-
-                if parsed["flags"] and parsed["flags"]["signed"]:
-                    st.write(f"Signature: {'✅ Valid'}")
-                else:
-                    st.write("Signature: Not signed")
-
                 st.json(parsed, expanded=True)
             except Exception as e:
                 st.error(str(e))

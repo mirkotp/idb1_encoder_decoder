@@ -42,10 +42,10 @@ class Signature(Construct):
 
     def _parse(self, stream, context, path):
         sig = self.sigfield._parsereport(stream, context, path)
-        if self.vk is None:
-            raise Exception("Cannot check signature, you must specify a public signer certificate. Check the help for information.")
-        else:
-            self.vk.verify(sig, self.bytesfunc(context), hashfunc=SIGNING_ALGOS[context._.signable.value.header.signature_algorithm])
+        # if self.vk is None:
+        #     raise Exception("Cannot check signature, you must specify a public signer certificate. Check the help for information.")
+        # else:
+        #     self.vk.verify(sig, self.bytesfunc(context), hashfunc=SIGNING_ALGOS[context._.signable.value.header.signature_algorithm])
         return sig
 
     def _build(self, obj, stream, context, path):

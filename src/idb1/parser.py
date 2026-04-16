@@ -76,7 +76,9 @@ def parse(barcode, vk=None):
                 # When using RawCopy, the value is wrapped in a dict with offset
                 # information, we want to unwrap it for better readability.
                 if "offset1" in v and "offset2" in v:
-                    out[k] = clean_json(v["value"])
+                    new_obj = clean_json(v["value"])
+                    new_obj["raw_data"] = v["data"]
+                    out[k] = new_obj
                 else:
                     out[k] = clean_json(v)
             else:
@@ -114,7 +116,12 @@ def build(obj, sk=None, vk=None, includeCert=False):
         except Exception as e:
             raise Exception("Invalid ECDSA public certificate (DER format expected)") from e
         
+        derived_vk = sk.get_verifying_key()
+        if derived_vk.to_string() != vk.to_string():
+            raise Exception("Signing key does not match the provided public certificate")
+    
         hashfunc = SIGNING_ALGOS[obj["content"]["signable"]["value"]["header"]["signature_algorithm"]]
+
         sk.default_hashfunc = hashfunc
         vk.default_hashfunc = hashfunc
 
