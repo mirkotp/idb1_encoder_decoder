@@ -65,6 +65,11 @@ class Base32(Tunnel):
         return base64.b32encode(obj).strip(b"=")
 
 class C40(Adapter):
+    """ 
+        This class implements a C40 as defined in ICAO 9303-13, not full C40 encoding.  
+        This simplified version only uses a simplified character set (uppercase letters, 
+        numbers and space). No other symbols are allowed.
+    """
     def _decode(self, obj, context, path):
         chset = "*** 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         output = ''

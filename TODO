@@ -1,8 +1,7 @@
 Generator
     - implement all eu visa fields
-    - implement full characters C40
     - JAB multisymbol support
     - make it easily installable
 
 Reader
-    - preload all fields in variables to make everything cleaner
+    - read jabs
