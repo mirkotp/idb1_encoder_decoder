@@ -20,7 +20,28 @@ def make_idb1(sk=None, vk=None):
         "sex"                   / FocusedSeq("f", Const(b"\x07"), "f" / Bytes(1)),
         "nationality"           / FocusedSeq("f", Const(b"\x08"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
         "nationality_at_birth"  / Optional(FocusedSeq("f", Const(b"\x09"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
-        "photo"                 / Optional(FocusedSeq("f", Const(b"\x1F"), "f" / Prefixed(DerLengthInt, GreedyBytes)))
+        # "td_type"
+        # "td_number"
+        # "td_issuing_authority"
+        # "td_date_of_issue"
+        # "td_date of expiry"
+        # "visa_issuing_authority"
+        # "visa_authority_location"
+        # "visa_issued_on_behalf"
+        # "visa_place_of_decision"
+        # "visa_date_of_decision"
+        # "visa_type"
+        # "visa_limited_validity"
+        # "visa_number"
+        # "visa_territory"
+        # "visa_commencement"
+        # "visa_expiry"
+        # "visa_n_of_entries"
+        # "visa_duration_of_stay"
+        # "visa_eueea_family_member"
+        # "visa_euuk_family_member"
+        # "visa_comments"
+        "photo"                 / Optional(FocusedSeq("f", Const(b"\x1D"), "f" / Prefixed(DerLengthInt, GreedyBytes)))
     )))
 
     # IDB Content Structure

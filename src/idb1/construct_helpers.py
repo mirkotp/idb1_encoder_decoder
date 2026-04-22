@@ -66,7 +66,8 @@ class Base32(Tunnel):
 
 class C40(Adapter):
     """ 
-        This class implements a C40 as defined in ICAO 9303-13, not full C40 encoding.  
+        This class implements a C40 adapter as defined in ICAO 9303-13, hence it does 
+        not cover full C40 encoding.  
         This simplified version only uses a simplified character set (uppercase letters, 
         numbers and space). No other symbols are allowed.
     """
@@ -119,7 +120,6 @@ class Date(Adapter):
         return string_date[4:] + "-" + string_date[0:2] + "-" + string_date[2:4]
 
     def _encode(self, obj, context, path):
-
         # Not needed at the moment, expected input is 
         # int(THE_DATE.strftime("%m%d%Y")).to_bytes(3)
         return obj
