@@ -11,37 +11,41 @@ def make_idb1(sk=None, vk=None):
     msg_can =       FocusedSeq("f", Const(b"\x09"), Const(b"\x04"), "f" / C40(Bytes(4)))
     msg_photo =     FocusedSeq("f", Const(b"\x1B"), "f" / Prefixed(DerLengthInt, GreedyBytes))
     msg_eu_visa =   FocusedSeq("f", Const(b"\x1C"), "f" / Prefixed(DerLengthInt, Struct(
-        "issuing_member_state"  / FocusedSeq("f", Const(b"\x01"), "f" / C40(Bytes(2))),
-        "full_name"             / FocusedSeq("f", Const(b"\x02"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
-        "surname_at_birth"      / Optional(FocusedSeq("f", Const(b"\x03"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
-        "date_of_birth"         / FocusedSeq("f", Const(b"\x04"), "f" / Date(Bytes(4))),
-        "country_of_birth"      / FocusedSeq("f", Const(b"\x05"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
-        "place_of_birth"        / Optional(FocusedSeq("f", Const(b"\x06"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
-        "sex"                   / FocusedSeq("f", Const(b"\x07"), "f" / Bytes(1)),
-        "nationality"           / FocusedSeq("f", Const(b"\x08"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
-        "nationality_at_birth"  / Optional(FocusedSeq("f", Const(b"\x09"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
-        # "td_type"
-        # "td_number"
-        # "td_issuing_authority"
-        # "td_date_of_issue"
-        # "td_date of expiry"
-        # "visa_issuing_authority"
-        # "visa_authority_location"
-        # "visa_issued_on_behalf"
-        # "visa_place_of_decision"
-        # "visa_date_of_decision"
-        # "visa_type"
-        # "visa_limited_validity"
-        # "visa_number"
-        # "visa_territory"
-        # "visa_commencement"
-        # "visa_expiry"
-        # "visa_n_of_entries"
+        "issuing_member_state"     / FocusedSeq("f", Const(b"\x01"), "f" / C40(Bytes(2))),
+        "full_name"                / FocusedSeq("f", Const(b"\x02"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "surname_at_birth"         / Optional(FocusedSeq("f", Const(b"\x03"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
+        "date_of_birth"            / FocusedSeq("f", Const(b"\x04"), "f" / Date(Bytes(4))),
+        "country_of_birth"         / FocusedSeq("f", Const(b"\x05"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "place_of_birth"           / Optional(FocusedSeq("f", Const(b"\x06"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
+        "sex"                      / FocusedSeq("f", Const(b"\x07"), "f" / Bytes(1)),
+        "nationality"              / FocusedSeq("f", Const(b"\x08"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "nationality_at_birth"     / Optional(FocusedSeq("f", Const(b"\x09"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
+        "td_type"                  / FocusedSeq("f", Const(b"\x0A"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "td_number"                / FocusedSeq("f", Const(b"\x0B"), "f" / Bytes(6)),
+        "td_issuing_authority"     / FocusedSeq("f", Const(b"\x0C"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "td_date"                  / FocusedSeq("f", Const(b"\x0D"), "f" / Struct(
+            "issue"  / Date(Bytes(4)),
+            "expiry" / Date(Bytes(4))
+        )),
+        "visa_issuing_authority"   / FocusedSeq("f", Const(b"\x0E"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "visa_authority_location"  / FocusedSeq("f", Const(b"\x0F"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        "visa_issued_on_behalf"    / Optional(FocusedSeq("f", Const(b"\x10"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
+        "visa_place_of_decision"   / Optional(FocusedSeq("f", Const(b"\x11"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
+        "visa_date_of_decision"    / FocusedSeq("f", Const(b"\x12"), "f" / Date(Bytes(4))),
+        "visa_type"                / Optional(FocusedSeq("f", Const(b"\x13"), "f" / Prefixed(DerLengthInt, GreedyBytes))),
+        "visa_limited_validity"    / FocusedSeq("f", Const(b"\x14"), "f" / Flag),
+        "visa_number"              / FocusedSeq("f", Const(b"\x15"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes))),
+        # "visa_territories"
+        "visa_date"                / FocusedSeq("f", Const(b"\x17"), "f" / Struct(
+            "commencement" / Date(Bytes(4)),
+            "expiry"       / Date(Bytes(4))
+        )),
+        "visa_n_of_entries"        / Optional(FocusedSeq("f", Const(b"\x18"), "f" / Byte)),
         # "visa_duration_of_stay"
-        # "visa_eueea_family_member"
-        # "visa_euuk_family_member"
-        # "visa_comments"
-        "photo"                 / Optional(FocusedSeq("f", Const(b"\x1D"), "f" / Prefixed(DerLengthInt, GreedyBytes)))
+        "visa_eueea_family_member" / Optional(FocusedSeq("f", Const(b"\x1A"), "f" / Flag)),
+        "visa_euuk_family_member"  / Optional(FocusedSeq("f", Const(b"\x1B"), "f" / Flag)),
+        "visa_comments"            / Optional(FocusedSeq("f", Const(b"\x1C"), "f" / Prefixed(DerLengthInt, C40(GreedyBytes)))),
+        "photo"                    / Optional(FocusedSeq("f", Const(b"\x1D"), "f" / Prefixed(DerLengthInt, GreedyBytes)))
     )))
 
     # IDB Content Structure
@@ -51,7 +55,6 @@ def make_idb1(sk=None, vk=None):
                 "country_identifier"      / C40(Bytes(2)),
                 "signature_algorithm"     / If(this._._._.flags.signed, Enum(Byte, **dict((j,i) for (i,j) in enumerate(SIGNING_ALGOS.keys())))),
                 "certificate_reference"   / If(this._._._.flags.signed, Bytes(5)),
-                                            If(this._._._.flags.signed, Const(b"\x00")), # Date mask, no unknown fields
                 "signature_creation_date" / If(this._._._.flags.signed, Date(Bytes(4)))
             ),
                 
@@ -61,7 +64,7 @@ def make_idb1(sk=None, vk=None):
                 "mrz_td3"   / Optional(msg_mrz_td3),
                 "can"       / Optional(msg_can),
                 "photo"     / Optional(msg_photo),
-                "eu_visa"   / Optional(msg_eu_visa)
+                "eu_visa"   / msg_eu_visa
             )),
         )),
         "signer_certificate"    / Optional(If(this._.flags.signed, FocusedSeq("sc", Const(b"\x7e"), "sc" / Prefixed(DerLengthInt, GreedyBytes)))),

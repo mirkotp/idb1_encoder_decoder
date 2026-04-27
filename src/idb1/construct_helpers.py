@@ -42,10 +42,6 @@ class Signature(Construct):
 
     def _parse(self, stream, context, path):
         sig = self.sigfield._parsereport(stream, context, path)
-        # if self.vk is None:
-        #     raise Exception("Cannot check signature, you must specify a public signer certificate. Check the help for information.")
-        # else:
-        #     self.vk.verify(sig, self.bytesfunc(context), hashfunc=SIGNING_ALGOS[context._.signable.value.header.signature_algorithm])
         return sig
 
     def _build(self, obj, stream, context, path):
@@ -67,7 +63,7 @@ class Base32(Tunnel):
 class C40(Adapter):
     """ 
         This class implements a C40 adapter as defined in ICAO 9303-13, hence it does 
-        not cover full C40 encoding.  
+        24not cover full C40 encoding.  
         This simplified version only uses a simplified character set (uppercase letters, 
         numbers and space). No other symbols are allowed.
     """
@@ -121,5 +117,5 @@ class Date(Adapter):
 
     def _encode(self, obj, context, path):
         # Not needed at the moment, expected input is 
-        # int(THE_DATE.strftime("%m%d%Y")).to_bytes(3)
+        # unknown_mask_byte + int(THE_DATE.strftime("%m%d%Y")).to_bytes(3)
         return obj

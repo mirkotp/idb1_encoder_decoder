@@ -32,7 +32,7 @@ with col1:
                 cert_included = st.checkbox("Include signer certificate in the barcode", value=False)
 
     with tab2:
-        st.subheader("EU Visa Data")
+        st.subheader("Personal Data")
         visa_issuing_member_state = st.selectbox("Issuing Member State", options=MEMBER_STATES, index=MEMBER_STATES.index(country_identifier), disabled=True)           
         visa_holder_full_name = st.text_input("Holder full name", value="Some Person")
         visa_holder_surname_at_birth = st.text_input("Holder surname at birth", value="Person")
@@ -45,6 +45,30 @@ with col1:
 
         nationality = st.text_input("Nationality", value="Argentinian")
         nationality_at_birth = st.text_input("Nationality at Birth", value="Brazilian")
+
+        st.subheader("Travel Document Data")
+        td_type = st.text_input("Travel Document Type", value="Passport")
+        td_number = st.text_input("Travel Document Number (6 alphanumeric characters)", value="12AB56", max_chars=6)
+        td_issuing_authority = st.text_input("Travel Document Issuing Authority", value="Some issuing authority")
+        td_date_of_issue = st.date_input("Travel Document Date of Issue", value="2020-01-01")
+        td_date_of_expiry = st.date_input("Travel Document Date of Expiry", value="2030-01-01")
+
+
+        st.subheader("Visa Data")
+        visa_issuing_authority = st.text_input("Visa Issuing Authority", value="Some other issuing authority")
+        visa_authority_location = st.text_input("Visa Authority Location", value="Some location")
+        visa_issued_on_behalf = st.selectbox("Visa issued on behalf of", options=[None]+MEMBER_STATES, index=0)
+        visa_place_of_decision = st.text_input("Visa Place of Decision", value="Some decision location")
+        visa_date_of_decision = st.date_input("Visa Date of Decision", value="2026-01-01")
+        visa_type = st.text_input("Visa Type (1 to 4 alphanumeric characters)", value="AA", max_chars=4)
+        visa_limited_validity = st.checkbox("Visa with limited validity", value=False)
+        visa_number = st.text_input("Visa Number", value="0AU3X12345")
+        visa_date_of_commencement = st.date_input("Visa date of Commencement", value="2026-01-01")
+        visa_date_of_expiry = st.date_input("Visa date of Expiry", value="2026-06-30")
+        visa_n_of_entries = st.number_input("Number of entries (0 for unlimited)", min_value=0, max_value=255, value=0)
+        visa_eueea_family_member = st.checkbox("Family member of EU/EEA citizen", value=False)
+        visa_euuk_family_member = st.checkbox("Family member of UK national who is beneficiary of the EU-UK Withdrawal Agreement", value=False)
+        visa_comments = st.text_area("Visa Comments", value="Some comment")
         visa_photo = None
     
     with tab3:
@@ -134,28 +158,51 @@ with col2:
     try:      
         data = build({
             "flags": {
-                "signed":       signed,
-                "compressed":   compressed
+                "signed":     signed,
+                "compressed": compressed,
             },
             "content": {
                 "signable": {
                     "value": {
                         "header": {
-                            "country_identifier": country_identifier,
+                            "country_identifier":  country_identifier,
                             "signature_algorithm": signature_algorithm if signed else None,
                         },
                         "message": {
                             "eu_visa": {
-                                "issuing_member_state": visa_issuing_member_state,
-                                "full_name":            visa_holder_full_name.upper() if visa_holder_full_name else "",
-                                "surname_at_birth":     visa_holder_surname_at_birth.upper() if visa_holder_surname_at_birth else "",
-                                "date_of_birth":        int(visa_date_of_birth.strftime("%m%d%Y")).to_bytes(4) if visa_date_of_birth else None,
-                                "country_of_birth":     visa_country_of_birth.upper() if visa_country_of_birth else "",
-                                "place_of_birth":       visa_place_of_birth.upper() if visa_place_of_birth else "",
-                                "sex":                  visa_sex.encode() if visa_sex else None,
-                                "nationality":          nationality.upper() if nationality else None,
-                                "nationality_at_birth": nationality_at_birth.upper() if nationality_at_birth else None,
-                                "photo":                visa_photo if visa_photo else None
+                                "issuing_member_state":     visa_issuing_member_state,
+                                "full_name":                visa_holder_full_name.upper() if visa_holder_full_name else "",
+                                "surname_at_birth":         visa_holder_surname_at_birth.upper() if visa_holder_surname_at_birth else "",
+                                "date_of_birth":            int(visa_date_of_birth.strftime("%m%d%Y")).to_bytes(4) if visa_date_of_birth else None,
+                                "country_of_birth":         visa_country_of_birth.upper() if visa_country_of_birth else "",
+                                "place_of_birth":           visa_place_of_birth.upper() if visa_place_of_birth else "",
+                                "sex":                      visa_sex.encode() if visa_sex else None,
+                                "nationality":              nationality.upper() if nationality else None,
+                                "nationality_at_birth":     nationality_at_birth.upper() if nationality_at_birth else None,
+                                "td_type":                  td_type.upper() if td_type else None,
+                                "td_number":                td_number.upper().encode() if td_number else None,
+                                "td_issuing_authority":     td_issuing_authority.upper() if td_issuing_authority else None,
+                                "td_date": {
+                                    "issue":  int(td_date_of_issue.strftime("%m%d%Y")).to_bytes(4) if td_date_of_issue else None,
+                                    "expiry": int(td_date_of_expiry.strftime("%m%d%Y")).to_bytes(4) if td_date_of_expiry else None
+                                },
+                                "visa_issuing_authority":   visa_issuing_authority.upper() if visa_issuing_authority else None,
+                                "visa_authority_location":  visa_authority_location.upper() if visa_authority_location else None,
+                                "visa_issued_on_behalf":    visa_issued_on_behalf.upper() if visa_issued_on_behalf else None,
+                                "visa_place_of_decision":   visa_place_of_decision.upper() if visa_place_of_decision else None,
+                                "visa_date_of_decision":    int(visa_date_of_decision.strftime("%m%d%Y")).to_bytes(4) if visa_date_of_decision else None,
+                                "visa_type":                visa_type.upper().encode() if visa_type else None,
+                                "visa_limited_validity":    visa_limited_validity,
+                                "visa_number":              visa_number.upper() if visa_number else None,
+                                "visa_date": {
+                                    "commencement": int(visa_date_of_commencement.strftime("%m%d%Y")).to_bytes(4) if visa_date_of_commencement else None,
+                                    "expiry":       int(visa_date_of_expiry.strftime("%m%d%Y")).to_bytes(4) if visa_date_of_expiry else None
+                                },
+                                "visa_n_of_entries":        visa_n_of_entries,
+                                "visa_eueea_family_member": visa_eueea_family_member,
+                                "visa_euuk_family_member":  visa_euuk_family_member,
+                                "visa_comments":            visa_comments.upper() if visa_comments else None,
+                                "photo":                    visa_photo if visa_photo else None
                             }
                         },
                     },

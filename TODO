@@ -2,6 +2,7 @@ Generator
     - implement all eu visa fields
     - JAB multisymbol support
     - make it easily installable
+    - Add unknown date mask for dob
 
 Reader
     - read jabs
