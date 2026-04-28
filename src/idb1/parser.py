@@ -75,12 +75,12 @@ def make_idb1(sk=None, vk=None):
 
     # IDB1 Outer Structure
     return Struct(
-                      Const(b"NDB1"), # IDB Version 1 Magic Number
-        "flags"     / FlagsEnum(
+                    Const(b"NDB1"), # IDB Version 1 Magic Number
+        "flags"   / FlagsEnum(
                         ExprAdapter(Byte, obj_ - 0x41, obj_ + 0x41),
                         signed = 1,
                         compressed = 2),
-        "content"   / IfThenElse(
+        "content" / IfThenElse(
                         this.flags.compressed, 
                         Base32(Compressed(idb1_content, "zlib", level=9)), 
                         Base32(idb1_content))

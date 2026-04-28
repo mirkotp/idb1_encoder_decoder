@@ -53,7 +53,6 @@ with col1:
         td_date_of_issue = st.date_input("Travel Document Date of Issue", value="2020-01-01")
         td_date_of_expiry = st.date_input("Travel Document Date of Expiry", value="2030-01-01")
 
-
         st.subheader("Visa Data")
         visa_issuing_authority = st.text_input("Visa Issuing Authority", value="Some other issuing authority")
         visa_authority_location = st.text_input("Visa Authority Location", value="Some location")
